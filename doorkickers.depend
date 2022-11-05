@@ -1,5 +1,5 @@
 # depslib dependency file v1.0
-1667600179 source:d:\githubreps\opengl_doorkickers_project\main.cpp
+1667678424 source:d:\githubreps\opengl_doorkickers_project\main.cpp
 	<bits/stdc++.h>
 	<GL/glut.h>
 	<GL/glu.h>
