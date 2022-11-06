@@ -31,6 +31,7 @@ public:
     static double maxhealth;
     Alien(double x=0,double y=60,double direction=180)
     {
+        printf("start constructor alien\n");
         alienCount++;
         this->health=maxhealth;
         this->x=x;
@@ -42,13 +43,14 @@ public:
         aliens.push_back(this);
         if(marchingFlag==0){
             marchingFlag=1;
-            glutTimerFunc(1000/30 , alienMarch, 0);
+            glutTimerFunc(1000/60 , alienMarch, 0);
         }
 
-
+        printf("end constructor alien\n");
     }
     void draw()
     {
+        printf("start draw alien\n");
         if(health>0){
 
         glPushMatrix();
@@ -68,11 +70,13 @@ public:
 
         glPopMatrix();
         }
+        printf("end draw alien 1\n");
 
     }
     static void alienMarch(int){
         if(aliens.empty())
         {
+            printf("start 1\n");
             marchingFlag=0;
             maxAttack++;
             maxhealth+=10;
@@ -85,13 +89,16 @@ public:
 
                 //printf("x = %f y = %d --------alien draw \n",randX,liner);
                 new Alien(randX, liner, 180);
-
+                printf("in loop 1 i = %d\n",i);
             }
+            printf("done 1 \n");
         }
         else
         {
+            printf("start 2\n");
             for(int i=0;i<aliens.size();i++)
             {
+                printf("in loop 2 i = %d\n",i);
                 //if(aliens.size()!=1)printf("inside move loop for alien %d\n",i);
                 aliens[i]->y-=1;
                 //if(aliens.size()!=1)printf("pos %f\n",aliens[i]->y);
@@ -101,7 +108,7 @@ public:
                 }
 
             }
-
+            printf("done 2\n");
             glutTimerFunc(1000/30, alienMarch, 0);
         }
     }
@@ -116,6 +123,7 @@ public:
 
     Shot(double playerX,double playerY,double pdirection)
     {
+        printf("start shot construct\n");
         originX=x;
         originY=y;
         x=playerX;
@@ -123,16 +131,19 @@ public:
         direction=pdirection;
         //shots.push_back(*this);
         //glutTimerFunc(1000/60 ,bulletControl, 0);
+        printf("end shot construct\n");
 
     }
     void draw()
     {
+        printf("start shot draw\n");
         glColor3f(0,0,0);
         glBegin(GL_POLYGON);//---------------start drawing bullet--------------
         glVertex2d(x, y+1);
         glVertex2d(x+0.3, y-1);
         glVertex2d(x-0.3, y-1);
         glEnd();//---------------end drawing--------------
+        printf("end shot draw\n");
     }
 
 
@@ -144,7 +155,7 @@ class Player{
 public:
     double x=0,y=0, direction=0;
     static std::vector<Player>players;
-    std::queue<Alien *>contacts;
+    std::queue<int>contacts;
     std::vector<Shot>shots;
     Player(double x,double y){
         this->x=x;
@@ -154,6 +165,7 @@ public:
     }
 
     void draw(){
+        printf("start player draw\n");
         glPushMatrix();
 
         glLoadIdentity();
@@ -162,7 +174,8 @@ public:
         glRotatef(direction,0,0,1);
         glTranslated(-x,-y,0);
 
-
+        printf("start shot loop\n");
+        printf("No. shots = %d\n",shots.size());
         for(int i=0;i<shots.size();i++)
         {
             /*if(shots[i].y<=contacts.front()->y+5 && shots[i].y>=contacts.front()->y-5){
@@ -176,13 +189,28 @@ public:
                     //printf("after pop\n");
                 }
             }*/
+            printf("nom i = %d\n",i);
             shots[i].draw();
-            shots[i].y+=4;
-            if(shots[i].y>57){
+            printf("increment y\n");
+            shots[i].y+=8;
+            printf("check out\n");
+            if(shots[i].y>77){
+                printf("start erase shot\n");
                 shots.erase(shots.begin()+i);
+                //Alien::aliens[contacts.front()]->health-=50;
+                printf("check alien health\n");
+                /*if(Alien::aliens[contacts.front()]->health<=0){
+                    //printf("before pop\n");
+                    Alien::aliens.erase(Alien::aliens.begin()+contacts.front());
+                    contacts.pop();
+
+                    direction=0;
+                    //printf("after pop\n");
+                }*/
+                break;
             }
         }
-
+        printf("end shots loop\n");
         glLineWidth(10.0);
         glColor3f(1,0,1);
         glBegin(GL_POLYGON);//---------------start drawing body--------------
@@ -213,19 +241,22 @@ public:
 
 
         glPopMatrix();
+        printf("end player draw\n");
 
     }
 
 
 
-    void shoot(Alien *alien)
+    void shoot(int alienNum)
     {
-        alien->health-=50;
-        if(alien->health<=0)contacts.pop();
-        direction=(atan((x-alien->x)/(alien->y-y)))*180.0/3.14;
-        if(alien->y<y)direction+=180;
+        printf("start shoot\n");
+        Alien::aliens[alienNum]->health-=50;
+        if(Alien::aliens[alienNum]->health<=0)contacts.pop();
+        direction=(atan((x-Alien::aliens[alienNum]->x)/(Alien::aliens[alienNum]->y-y)))*180.0/3.14;
+        if(Alien::aliens[alienNum]->y<y)direction+=180;
         Shot shot(x+2.4,y,direction);
         shots.push_back(shot);
+        printf("end shoot\n");
 
     }
 
@@ -289,6 +320,7 @@ int main(int argc,char**argv){
     glutMainLoop();
 }
 void display(){
+    printf("start display\n");
     glClear(GL_COLOR_BUFFER_BIT);
     glLoadIdentity();
 
@@ -333,7 +365,7 @@ void display(){
     //glFlush();
     glutSwapBuffers();
 
-
+    printf("end display\n");
 
 
 
@@ -404,15 +436,18 @@ void mousedet(int button,int state,int x,int y)
 }
 void shootingControl(int id)
 {
-    if(!Player::players[id].contacts.empty()){
-    double dirX=Player::players[id].contacts.front()->x;
-    double dirY=Player::players[id].contacts.front()->y-5;
-    Player::players[id].shoot(Player::players[id].contacts.front());
-    glutTimerFunc(1500,shootingControl,id);
+    printf("start shoot control\n");
+    if((!Player::players[id].contacts.empty()) && Player::players[id].shots.empty()){
+        double dirX=Alien::aliens[Player::players[id].contacts.front()]->x;
+        double dirY=Alien::aliens[Player::players[id].contacts.front()]->y-5;
+        Player::players[id].shoot(Player::players[id].contacts.front());
+        glutTimerFunc(2000,shootingControl,id);
     }
+    printf("end shoot control\n");
 }
 void contactControl(int)
 {
+    printf("start cont cont\n");
     for(int i=0; i<Player::players.size();i++)
     {
         if(!Player::players[i].contacts.empty())
@@ -421,11 +456,11 @@ void contactControl(int)
         }
         for(int j=0; j<Alien::aliens.size(); j++)
         {
-            if(Alien::aliens[j]->y>Player::players[i].y)
+            if(Alien::aliens[j]->y>Player::players[i].y+10)
             {
                 //printf("sadads\n");
 
-                Player::players[i].contacts.push(Alien::aliens[j]);
+                Player::players[i].contacts.push(j);
                 glutTimerFunc(1000,shootingControl,i);
 
             }
@@ -435,7 +470,8 @@ void contactControl(int)
             }
         }
     }
-    glutTimerFunc(1000/60,contactControl,0);
+    glutTimerFunc(1000/30,contactControl,0);
+    printf("end cont cont\n");
 }
 
 
