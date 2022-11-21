@@ -21,17 +21,17 @@
 #include <windows.h>
 using namespace std;
 
-
+int warn=0;
 class Alien
 {
 public:
-    double x,y,direction,health=100;
+    double x,y,direction,health=100,hit=0;
     static std::vector<Alien *>aliens;
     static int alienCount,maxAttack,marchingFlag;
     static double maxhealth;
     Alien(double x=0,double y=60,double direction=180)
     {
-        printf("start constructor alien\n");
+        //printf("start constructor alien\n");
         alienCount++;
         this->health=maxhealth;
         this->x=x;
@@ -46,11 +46,12 @@ public:
             glutTimerFunc(1000/60 , alienMarch, 0);
         }
 
-        printf("end constructor alien\n");
+        //printf("end constructor alien\n");
     }
     void draw()
     {
-        printf("start draw alien\n");
+        hit--;
+        //printf("start draw alien\n");
         if(health>0){
 
         glPushMatrix();
@@ -59,6 +60,7 @@ public:
 
         glLineWidth(10.0);
         glColor3f(0.8,0,0);
+        if(hit>0)glColor3f(0.8,0.8,0);
         glBegin(GL_POLYGON);
 
         //---------------start drawing body--------------
@@ -70,48 +72,53 @@ public:
 
         glPopMatrix();
         }
-        printf("end draw alien 1\n");
+        //printf("end draw alien 1\n");
 
     }
     static void alienMarch(int){
         if(aliens.empty())
         {
-            printf("start 1\n");
+            //printf("start 1\n");
             marchingFlag=0;
-            maxAttack++;
-            maxhealth+=10;
+            if(maxAttack<=5)maxAttack++;
+            //maxhealth+=10;
             int liner=50;
             for(int i=0;i<maxAttack;i++){
                 liner+=10;
-                double randX = -100 + ( std::rand() % ( 100 + 100 + 1 ) );
+                double randX = -100 + (rand() % ( 100 + 100 + 1 ) );
                 //if(liner%10==0)liner+=10;
                 //printf("creating liner = %ld\n",liner);
 
                 //printf("x = %f y = %d --------alien draw \n",randX,liner);
                 new Alien(randX, liner, 180);
-                printf("in loop 1 i = %d\n",i);
+                //printf("in loop 1 i = %d\n",i);
             }
-            printf("done 1 \n");
+            //printf("done 1 \n");
         }
         else
         {
-            printf("start 2\n");
+            //printf("start 2\n");
             for(int i=0;i<aliens.size();i++)
             {
-                printf("in loop 2 i = %d\n",i);
+                //printf("in loop 2 i = %d\n",i);
                 //if(aliens.size()!=1)printf("inside move loop for alien %d\n",i);
                 aliens[i]->y-=1;
                 //if(aliens.size()!=1)printf("pos %f\n",aliens[i]->y);
                 if(aliens[i]->y<=-56){
                     aliens.erase(aliens.begin()+i);
                     alienCount--;
+                    if(aliens[i]->health>0){
+                        warn=15;
+                    }
+
                 }
 
             }
-            printf("done 2\n");
+            //printf("done 2\n");
             glutTimerFunc(1000/30, alienMarch, 0);
         }
     }
+
 };
 
 
@@ -123,7 +130,7 @@ public:
 
     Shot(double playerX,double playerY,double pdirection)
     {
-        printf("start shot construct\n");
+        //printf("start shot construct\n");
         originX=x;
         originY=y;
         x=playerX;
@@ -131,19 +138,19 @@ public:
         direction=pdirection;
         //shots.push_back(*this);
         //glutTimerFunc(1000/60 ,bulletControl, 0);
-        printf("end shot construct\n");
+        //printf("end shot construct\n");
 
     }
     void draw()
     {
-        printf("start shot draw\n");
+        //printf("start shot draw\n");
         glColor3f(0,0,0);
         glBegin(GL_POLYGON);//---------------start drawing bullet--------------
         glVertex2d(x, y+1);
         glVertex2d(x+0.3, y-1);
         glVertex2d(x-0.3, y-1);
         glEnd();//---------------end drawing--------------
-        printf("end shot draw\n");
+        //printf("end shot draw\n");
     }
 
 
@@ -165,17 +172,17 @@ public:
     }
 
     void draw(){
-        printf("start player draw\n");
+        //printf("start player draw\n");
         glPushMatrix();
 
-        glLoadIdentity();
+        //glLoadIdentity();
 
         glTranslated(x,y,0);
         glRotatef(direction,0,0,1);
         glTranslated(-x,-y,0);
 
-        printf("start shot loop\n");
-        printf("No. shots = %d\n",shots.size());
+        //printf("start shot loop\n");
+        //printf("No. shots = %d\n",shots.size());
         for(int i=0;i<shots.size();i++)
         {
             /*if(shots[i].y<=contacts.front()->y+5 && shots[i].y>=contacts.front()->y-5){
@@ -189,16 +196,16 @@ public:
                     //printf("after pop\n");
                 }
             }*/
-            printf("nom i = %d\n",i);
+           // printf("nom i = %d\n",i);
             shots[i].draw();
-            printf("increment y\n");
+           // printf("increment y\n");
             shots[i].y+=8;
-            printf("check out\n");
+           // printf("check out\n");
             if(shots[i].y>77){
-                printf("start erase shot\n");
+                //printf("start erase shot\n");
                 shots.erase(shots.begin()+i);
                 //Alien::aliens[contacts.front()]->health-=50;
-                printf("check alien health\n");
+               // printf("check alien health\n");
                 /*if(Alien::aliens[contacts.front()]->health<=0){
                     //printf("before pop\n");
                     Alien::aliens.erase(Alien::aliens.begin()+contacts.front());
@@ -210,7 +217,7 @@ public:
                 break;
             }
         }
-        printf("end shots loop\n");
+        //printf("end shots loop\n");
         glLineWidth(10.0);
         glColor3f(1,0,1);
         glBegin(GL_POLYGON);//---------------start drawing body--------------
@@ -241,7 +248,7 @@ public:
 
 
         glPopMatrix();
-        printf("end player draw\n");
+        //printf("end player draw\n");
 
     }
 
@@ -249,14 +256,20 @@ public:
 
     void shoot(int alienNum)
     {
-        printf("start shoot\n");
-        Alien::aliens[alienNum]->health-=50;
+        //printf("start shoot\n");
+        glutTimerFunc(500,alienshoot,alienNum);
         if(Alien::aliens[alienNum]->health<=0)contacts.pop();
         direction=(atan((x-Alien::aliens[alienNum]->x)/(Alien::aliens[alienNum]->y-y)))*180.0/3.14;
         if(Alien::aliens[alienNum]->y<y)direction+=180;
         Shot shot(x+2.4,y,direction);
         shots.push_back(shot);
-        printf("end shoot\n");
+        //printf("end shoot\n");
+
+    }
+    static void alienshoot(int alienNum)
+    {
+        Alien::aliens[alienNum]->health-=50;
+        Alien::aliens[alienNum]->hit=15;
 
     }
 
@@ -320,7 +333,7 @@ int main(int argc,char**argv){
     glutMainLoop();
 }
 void display(){
-    printf("start display\n");
+    //printf("start display\n");
     glClear(GL_COLOR_BUFFER_BIT);
     glLoadIdentity();
 
@@ -362,10 +375,22 @@ void display(){
     glEnd();
 
 
+    if(warn>0){
+        warn--;
+        glColor3f(0.8,0,0);
+        glBegin(GL_POLYGON);
+        printf("drawing");
+        //---------------start drawing body--------------
+        glVertex2d(-100, -50);
+        glVertex2d(100, -50);
+        glVertex2d(100, -56);
+        glVertex2d(-100, -56);
+        glEnd();//---------------end drawing--------------
+    }
     //glFlush();
     glutSwapBuffers();
 
-    printf("end display\n");
+    //printf("end display\n");
 
 
 
@@ -436,18 +461,18 @@ void mousedet(int button,int state,int x,int y)
 }
 void shootingControl(int id)
 {
-    printf("start shoot control\n");
+    //printf("start shoot control\n");
     if((!Player::players[id].contacts.empty()) && Player::players[id].shots.empty()){
         double dirX=Alien::aliens[Player::players[id].contacts.front()]->x;
         double dirY=Alien::aliens[Player::players[id].contacts.front()]->y-5;
         Player::players[id].shoot(Player::players[id].contacts.front());
         glutTimerFunc(2000,shootingControl,id);
     }
-    printf("end shoot control\n");
+   // printf("end shoot control\n");
 }
 void contactControl(int)
 {
-    printf("start cont cont\n");
+   // printf("start cont cont\n");
     for(int i=0; i<Player::players.size();i++)
     {
         if(!Player::players[i].contacts.empty())
@@ -471,7 +496,7 @@ void contactControl(int)
         }
     }
     glutTimerFunc(1000/30,contactControl,0);
-    printf("end cont cont\n");
+    //printf("end cont cont\n");
 }
 
 
