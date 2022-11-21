@@ -318,7 +318,7 @@ int main(int argc,char**argv){
 
 
     glutCreateWindow("Road");
-    glutSetWindowTitle("doorkickers");
+    glutSetWindowTitle("20100361:mohamed_dwidar");
     glutFullScreen();
     glutDisplayFunc(display);
     glutReshapeFunc(reshape);
